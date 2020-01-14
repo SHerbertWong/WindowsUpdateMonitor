@@ -13,7 +13,7 @@ namespace System
 			ServiceBase.Run(new WindowsUpdateMonitor());
 		}
 
-		private int WakeupInterval = 300, GracePreiod = 15;
+		private int GracePreiod = 15;
 		private SystemEx.ServiceProcess.ServiceController ServiceController;
 		private Thread MonitorThread;
 
@@ -43,15 +43,8 @@ namespace System
 			{
 				while (true)
 				{
-					try
-					{
-						// Wait for Windows Update Service to run on its own or until WakeupInterval seconds have passed
-						ServiceController.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan((Int64)WakeupInterval * 10000000));
-					}
-					catch (System.ServiceProcess.TimeoutException)
-					{
-						continue;
-					}
+					// Wait for Windows Update Service to enter "Running" status
+					ServiceController.WaitForStatus(ServiceControllerStatus.Running);
 
 					// Stop Windows Update service
 					ServiceController.ForceStop(new TimeSpan(GracePreiod * 10000000));
